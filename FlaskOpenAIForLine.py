@@ -5,6 +5,9 @@ import threading
 import json
 from linebot import LineBotApi, WebhookHandler
 from linebot.models import TextSendMessage
+#pip install Flask
+#pip install openai  
+#pip install line-bot-sdk 
 
 # 用於追踪開發者的printg功能
 def printg(message):
