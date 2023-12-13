@@ -1,10 +1,25 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import requests
 import threading
 import webbrowser
 import os
+import openai
+import json
 
 app = Flask(__name__)
+
+app = Flask(__name__)
+openai.api_key = 'your-api-key-here'
+
+@app.route("/message/<message>", methods=['GET','POST'])
+def message(message):
+    return message
+
+@app.route('/generate-text', methods=['GET','POST'])
+def generate_text():
+    data = request.json
+    response = openai.Completion.create(engine="davinci", prompt=data['prompt'], max_tokens=50)
+    return jsonify(response.choices[0].text)
 
 @app.route('/')
 def home():
@@ -65,6 +80,29 @@ def service_unavailable(error):
     return render_template('503.html'), 503
 
 
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+    print(f'Username: {username}, Password: {password}')
+
+    user = {'username': username, 'password': password}
+
+    # 儲存到 JSON 文件
+    if not os.path.isfile('users.json'):
+        # 文件不存在，創建文件並寫入
+        with open('users.json', 'w') as file:
+            json.dump([user], file)
+    else:
+        # 文件存在，讀取內容並添加新數據
+        with open('users.json', 'r+') as file:
+            users = json.load(file)
+            users.append(user)
+            file.seek(0)
+            json.dump(users, file)
+
+    return jsonify({'status': 'success', 'username': username})
 
 
 
