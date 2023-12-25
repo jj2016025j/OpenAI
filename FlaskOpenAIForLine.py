@@ -27,10 +27,10 @@ except Exception as e:
     printg(f"錯誤: {e}")
 
 # 從配置文件取得金鑰
-auth_token = config["auth_token"]
-access_token = config["access_token"]
-secret = config["secret"]
-openai_api_key = config["openai_api_key"]
+AUTH_AOKEN = config["AUTH_AOKEN"]
+ACCESS_TOKEN = config["ACCESS_TOKEN"]
+SECRET = config["SECRET"]
+OPENAI_API_KEY = config["OPENAI_API_KEY"]
 
 app = Flask(__name__)
 
@@ -42,8 +42,8 @@ def linebot():
     printg("收到LINE消息")
     
     try:
-        line_bot_api = LineBotApi(access_token)
-        handler = WebhookHandler(secret)
+        line_bot_api = LineBotApi(ACCESS_TOKEN)
+        handler = WebhookHandler(SECRET)
         signature = request.headers['X-Line-Signature']
         handler.handle(body, signature)
         tk = json_data['events'][0]['replyToken']
@@ -55,8 +55,8 @@ def linebot():
             # 如果消息以 "hi ai" 開頭，使用OpenAI回答
             if msg.startswith('Hi OpenAI '):
                 printg("使用OpenAI生成回复")
-                openai.api_key = openai_api_key
                 response = openai.Completion.create(
+                    api_key = OPENAI_API_KEY,
                     model='text-davinci-003',
                     prompt=msg[6:],
                     max_tokens=10,
@@ -83,10 +83,10 @@ def home(name):
     else:
         return f"<h1>{name}</h1>"
 
-def run_app():
-    """運行Flask應用程序的函數"""
-    printg("啟動Flask應用")
-    app.run()
+# def run_app():
+#     """運行Flask應用程序的函數"""
+#     printg("啟動Flask應用")
+#     app.run()
 
 def run_ngrok():
     """啟動ngrok的函數"""

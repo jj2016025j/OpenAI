@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPT 對話界面</title>
+    <!-- 引入 Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        #chatbox {
+            height: 300px;
+            overflow-y: scroll;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body class="container py-4">
+    <div id="chatbox" class="mb-3"></div>
+    <form id="chatForm" class="form-inline">
+        <input type="text" id="input" class="form-control mr-2" style="width: 90%;" placeholder="請輸入訊息..."
+            autocomplete="off">
+        <button type="submit" class="btn btn-primary">發送</button>
+    </form>
+    <script>
+        let data = {}
+        fetch('config.json')
+            .then(response => response.json())
+            .then(jsonData => {
+                data = jsonData
+                console.log(data.OPENAI_API_KEY); // 访问产品名
+            })
+            .catch(error => {
+                console.error('Error fetching JSON:', error);
+            });
+
+        document.getElementById('chatForm').addEventListener('submit', function (event) {
+            event.preventDefault(); // 阻止表单默认提交行为
+            let inputField = document.getElementById('input');
+            let message = inputField.value;
+            inputField.value = '';
+
+            // 显示用户信息
+            document.getElementById('chatbox').innerHTML += `<div>User: ${message}</div>`;
+
+            // message = [{ "role": "user", "content": "Say this is a test!" }]
+
+            // 调用 OpenAI API
+            fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${data.OPENAI_API_KEY}` // 用实际的 API 密钥替换
+                },
+                body: JSON.stringify({
+                    model: "gpt-3.5-turbo",
+                    messages: [{ "role": "user", "content": `${message}` }],
+                    temperature: 0.7,
+                    max_tokens: 1
+                })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // 提取 GPT 响应
+                    let gptResponse = data.choices[0].message.content.trim();
+                    document.getElementById('chatbox').innerHTML += `<div>GPT: ${gptResponse}</div>`;
+                })
+                .catch(error => console.error('Error:', error));
+        });
+    </script>
+    <!-- 引入 Bootstrap JS 和相關依賴 -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+
+</html>
