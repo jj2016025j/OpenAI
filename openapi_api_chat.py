@@ -6,8 +6,8 @@ try:
         config = json.load(file)
 except Exception as e:
     print(f"錯誤: {e}")
-
-OPENAI_API_KEY = config["OPENAI_API_KEY"]
+print(config["OPENAI_API"]["OPENAI_API_KEY"])
+OPENAI_API_KEY = config["OPENAI_API"]["OPENAI_API_KEY"]
 
 #=========================================================
 
@@ -42,15 +42,15 @@ OPENAI_API_KEY = config["OPENAI_API_KEY"]
 # }
 
 #=========================================================
+#說不能用Completion
+# response = OpenAI.Completion.create(
+#     api_key = OPENAI_API_KEY,
+#     engine="text-davinci-003",
+#     prompt="翻译以下文本到英文：'你好，世界！'",
+#     max_tokens=1
+# )
 
-response = OpenAI.Completion.create(
-    api_key = OPENAI_API_KEY,
-    engine="text-davinci-003",
-    prompt="翻译以下文本到英文：'你好，世界！'",
-    max_tokens=1
-)
-
-print(response.choices[0].text.strip())
+# print(response.choices[0].text.strip())
 # {
 #   "id": "unique-id",
 #   "object": "text_completion",
@@ -65,19 +65,6 @@ print(response.choices[0].text.strip())
 #     }
 #   ]
 # }
-
-#=========================================================
-
-# response = OpenAI.Completion.create(
-#     openai.api_key = OPENAI_API_KEY
-#     model="text-davinci-003",
-#     prompt="講個笑話來聽聽",
-#     max_tokens=1,
-#     temperature=0.5,
-# )
-
-# completed_text = response["choices"][0]["text"]
-# print(completed_text)
 
 #=========================================================
 
@@ -127,14 +114,33 @@ print(response.choices[0].text.strip())
 
 #=========================================================
 
-#2023/12/25還可以用
-# completion = client.chat.completions.create(
-#   model="gpt-3.5-turbo",
-#   messages=[
-#     {"role": "system", "content": "You are a helpful assistant."},
-#     {"role": "user", "content": "Hello!"}
-#   ]
-# )
+#401
+client = OpenAI(
+    api_key = OPENAI_API_KEY
+)
 
-# print(completion.choices[0].message)
-# ChatCompletionMessage(content='Hello! How can I assist you today?', role='assistant', function_call=None, tool_calls=None)
+#2023/12/25還可以用
+completion = client.chat.completions.create(
+  model="gpt-3.5-turbo",
+  messages=[
+    {"role": "system", "content": "You are a helpful assistant."},
+    {"role": "user", "content": "Hello!"}
+  ]
+)
+
+print(completion.choices[0].message)
+# # ChatCompletionMessage(content='Hello! How can I assist you today?', role='assistant', function_call=None, tool_calls=None)
+
+
+#=========================================================
+
+response = OpenAI.Completion.create(
+    api_key = OPENAI_API_KEY,
+    model="text-davinci-003",
+    prompt="講個笑話來聽聽",
+    max_tokens=1,
+    temperature=1,
+)
+
+completed_text = response["choices"][0]["text"]
+print(completed_text)
